@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/css/style.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+    <title>Lib.</title>
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+        <div
+            class="h-[calc(100vh-4.5rem)] w-full flex items-center justify-center flex-col gap-10 p-5 bg-white dark:bg-gray-800 overflow-hidden">
+            <!-- <h1 class="text-blue-900">It's Working.Yohoo check 123</h1> -->
+            <svg aria-hidden="true" class="w-10 h-10 text-gray-400 dark:text-gray-600" viewBox="0 0 24 27" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M14.017 18L14.017 10.609C14.017 4.905 17.748 1.039 23 0L23.995 2.151C21.563 3.068 20 5.789 20 8H24V18H14.017ZM0 18V10.609C0 4.905 3.748 1.038 9 0L9.996 2.151C7.563 3.068 6 5.789 6 8H9.983L9.983 18L0 18Z"
+                    fill="currentColor" />
+            </svg>
+            <blockquote
+                class="text-sm md:text-xl lg:text-2xl font-bold text-center italic w-2/3 font-rale text-gray-900 dark:text-white">
+                <p id="quote">
+                    <%= quote.substring(0, 500) + "..." ; %>
+                </p>
+            </blockquote>
+            <figcaption class="flex items-center justify-center mt-6 space-x-3">
+                <img class="w-6 h-6 rounded-full" src="<% if(typeof authorUrl !==" undefined" ){ %>
+                <%= authorUrl %>
+                    <%}%>" alt="author">
+                        <div class="flex items-center divide-x-2 divide-gray-500 dark:divide-gray-700">
+                            <cite class="pr-3 font-medium text-gray-900 dark:text-white">
+                                <% if(typeof author !=="undefined" ){ %>
+                                    <%= author %>
+                                        <%}%>
+                            </cite>
+                            <cite class="pl-3 text-sm text-gray-500 dark:text-gray-400">
+                                <% if(typeof book !=="undefined" ){ %>
+                                    <%= book %>
+                                        <%}%>
+                            </cite>
+                        </div>
+            </figcaption>
+            <a class="block rounded bg-red-600 px-12 py-3 text-sm font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring active:bg-red-500 w-auto"
+                href="#books-container">
+                Browse Books
+            </a>
+        </div>
+        <div class="w-full min-h-screen backdrop-brightness-95 dark:bg-gray-900 flex items-center justify-center">
+
+            <div class="w-11/12 h-auto overflow-hidden p-5 flex items-center flex-col relative" id="books-container">
+                <h1
+                    class="mb-4 text-2xl text-center font-bold p-5 text-gray-900 dark:text-white dark:bg-gray-900 md:text-5xl lg:text-5xl">
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Suggested</span>
+                    Reads
+                </h1>
+                <!-- Book Container  -->
+                <div class="flex justify-center items-center flex-wrap gap-5 h-auto w-full m-5" id="book-container">
+
+                </div>
+            </div>
+        </div>
+</body>
+<script src="/js/script.js"></script>
+<script>
+    function getTrendingBooks() {
+        let bookContainer = document.getElementById('book-container');
+
+        // const sqlQuery = 'select * from books Order by RAND() LIMIT 4';
+        const sqlQuery = `SELECT b.BookID, b.Title AS Bookname, b.ImageURL , a.AuthorName, p.PublisherName
+                        FROM books b
+                        INNER JOIN authors a ON b.AuthorID = a.AuthorID
+                        INNER JOIN publishers p ON b.PublisherID = p.PublisherID
+                        ORDER BY RAND()
+                        LIMIT 4;
+        `;
+        const postData = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ query: sqlQuery })
+        };
+        fetch('/query', postData)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach((element) => {
+                    let book = document.createElement('div');
+                    book.classList.add('!z-5', 'relative', 'flex', 'flex-col', 'rounded-[20px]', 'max-w-[300px]', 'bg-white', 'dark:bg-gray-800', 'dark:border', 'dark:border-white', 'bg-clip-border', 'shadow-3xl', 'shadow-shadow-500', 'w-full', '!p-4', '3xl:p-![18px]', 'undefined');
+                    book.innerHTML = `
+                <div class="h-full w-full">
+                    <div class="relative w-full">
+                        <img src="${element.ImageURL}" class="mb-3 rounded-xl object-cover object-center" alt="book cover" style="width: 300px; height: 200px;">
+                        <button class="absolute top-3 right-3 flex items-center justify-center rounded-full bg-white p-2 text-brand-500 hover:cursor-pointer">
+                            <div class="flex h-full w-full items-center justify-center rounded-full text-xl hover:bg-gray-50">
+                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="mb-3 flex items-center justify-between px-1 md:items-start">
+                        <div class="mb-2">
+                            <p class="text-lg font-bold text-navy-700 dark:text-white"> ${element.Bookname} </p>
+                            <p class="mt-1 text-sm font-medium text-gray-600 md:mt-2">By ${element.AuthorName} </p>
+                                
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-3 md:items-center lg:justify-between ">
+                        <button onclick='borrowBook("${element.BookID}")'
+                            class="linear rounded-lg bg-red-600 w-full px-4 py-2 text-base font-medium text-white transition duration-200 hover:bg-brand-800 active:bg-brand-700">
+                            Borrow Now
+                        </button>
+                    </div>
+                </div>`;
+                    bookContainer.appendChild(book);
+                })
+            })
+    }
+    getTrendingBooks();
+
+
+    function borrowBook(bookId) {
+        fetch('/books/borrow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                bookid: bookId
+            })
+        })
+            .then((res) => {
+                console.log(res);
+                if (res.status === 200) {
+                    alert('Book borrowed successfully');
+                    location.reload();
+                } else {
+                    alert('Book not borrowed');
+                }
+            });
+    }
+</script>
+
+</html>
